@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>F1 Track Ranking</title>
+</head>
+<body>
+    <div id="menu">
+        <h1>F1 Track Ranking</h1>
+        <button id="startButton">Start</button>
+    </div>
+    <div id="game" style="display: none;">
+        <div class="vote-container" id="voteContainer">
+            <h2>Which track do you prefer?</h2>
+            <div class="button-container">
+                <button class="track-button" id="track1"></button>
+                <button class="track-button" id="track2"></button>
+            </div>
+        </div>
+        <div id="results"></div>
+    </div>
+    <div id="finalResults" style="display: none;">
+        <h2>Final Results</h2>
+        <div id="ranking"></div>
+    </div>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1, h2 {
+            color: #333;
+        }
+
+        .track-button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            margin: 10px;
+            font-size: 16px;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: center;
+        }
+    </style>
+    <script>
+        const tracks = ["Bahrain", "Saudi Arabia", "Australia", "Azerbaijan", "Imola", "Monaco", "Spain", "Canada", "Austria", "Silverstone", "Hungary", "Belgium", "Netherlands", "Monza", "Singapore", "Japan", "Qatar", "Austin", "Mexico", "Brazil", "Las Vegas", "Abu Dhabi", "China", "Portugal", "France"];
+        const trackVotes = {};
+        let currentRound = 0;
+        let currentPair = [0, 1];
+
+        const startButton = document.getElementById('startButton');
+        const voteContainer = document.getElementById('voteContainer');
+        const track1Button = document.getElementById('track1');
+        const track2Button = document.getElementById('track2');
+        const resultsDiv = document.getElementById('results');
+        const rankingDiv = document.getElementById('ranking');
+
+        startButton.addEventListener('click', () => {
+            document.getElementById('menu').style.display = 'none';
+            document.getElementById('game').style.display = 'block';
+            showNextRound();
+        });
+
+        function showNextRound() {
+            if (currentPair[1] === tracks.length) {
+                currentPair[0]++;
+                currentPair[1] = currentPair[0] + 1;
+            }
+
+            const track1 = tracks[currentPair[0]];
+            const track2 = tracks[currentPair[1]];
+            voteContainer.style.display = 'block';
+            track1Button.innerHTML = track1;
+            track2Button.innerHTML = track2;
+            resultsDiv.innerHTML = "";
+        }
+
+        track1Button.addEventListener('click', () => {
+            registerVote(tracks[currentPair[0]], tracks[currentPair[1]]);
+            currentPair[1]++;
+            if (currentPair[1] === tracks.length) {
+                currentPair[0]++;
+                currentPair[1] = currentPair[0] + 1;
+            }
+            if (currentPair[0] < tracks.length - 1) {
+                showNextRound();
+            } else {
+                showResults();
+            }
+        });
+
+        track2Button.addEventListener('click', () => {
+            registerVote(tracks[currentPair[1]], tracks[currentPair[0]]);
+            currentPair[1]++;
+            if (currentPair[1] === tracks.length) {
+                currentPair[0]++;
+                currentPair[1] = currentPair[0] + 1;
+            }
+            if (currentPair[0] < tracks.length - 1) {
+                showNextRound();
+            } else {
+                showResults();
+            }
+        });
+
+        function registerVote(winTrack, loseTrack) {
+            if (!trackVotes[winTrack]) {
+                trackVotes[winTrack] = 1;
+            } else {
+                trackVotes[winTrack]++;
+            }
+            if (!trackVotes[loseTrack]) {
+                trackVotes[loseTrack] = 0;
+            }
+        }
+
+        function showResults() {
+            document.getElementById('game').style.display = 'none';
+            document.getElementById('finalResults').style.display = 'block';
+            displayFinalResults();
+        }
+
+        function displayFinalResults() {
+            const sortedResults = tracks.sort((a, b) => trackVotes[b] - trackVotes[a]);
+
+            rankingDiv.innerHTML = sortedResults.map(track => `<p>${track}: ${trackVotes[track]}</p>`).join('');
+        }
+    </script>
+</body>
+</html>
